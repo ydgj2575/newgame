@@ -1,0 +1,11 @@
+{
+  "name": "save-patrick",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "拯救派大星：点击移动降落伞，接住掉落物送回救助站得分的网页小游戏",
+  "scripts": {
+    "test": "node tests/engine.test.mjs",
+    "serve": "python -m http.server 8794"
+  }
+}

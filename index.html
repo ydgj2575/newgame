@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#5fc0ee" />
+  <meta name="description" content="拯救派大星：控制降落伞接住从天空掉落的派大星、星星和垃圾袋，送回救助站得分，别让派大星掉出屏幕！" />
+  <title>拯救派大星</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<main class="app">
+  <section class="stage" id="stage">
+    <canvas id="game" aria-label="拯救派大星游戏画面"></canvas>
+
+    <!-- 开始界面 -->
+    <div class="overlay" id="start-screen">
+      <div class="card">
+        <p class="eyebrow">天空掉下了好多派大星</p>
+        <h1>拯救派大星</h1>
+        <p class="subtitle">控制降落伞，把掉落的派大星和垃圾袋送回左下角的救助站</p>
+        <ul class="rules">
+          <li><span class="dot patrick"></span>救回派大星 <b>+5 分</b></li>
+          <li><span class="dot trash"></span>收回垃圾袋 <b>+1 分</b></li>
+          <li><span class="dot star"></span>带回星星 <b class="minus">-7 分</b></li>
+          <li><span class="dot hurt"></span>派大星掉出屏幕 <b class="minus">-1 生命</b>（5 颗扣光结束）</li>
+        </ul>
+        <button class="primary" id="start-btn">开始救援</button>
+        <p class="tip">点击 / 拖动屏幕移动降落伞 · 也支持方向键</p>
+      </div>
+    </div>
+
+    <!-- 结束界面 -->
+    <div class="overlay hidden" id="over-screen">
+      <div class="card">
+        <p class="eyebrow">救援结束</p>
+        <h2>派大星们还好吗？</h2>
+        <div class="score-big" id="final-score">0</div>
+        <p class="score-label">最终得分</p>
+        <div class="stats" id="final-stats"></div>
+        <button class="primary" id="restart-btn">再来一局</button>
+        <button class="ghost" id="home-btn">返回标题</button>
+      </div>
+    </div>
+  </section>
+  <p class="footer">接住派大星和垃圾袋送回救助站得分，星星会扣分，别接！</p>
+</main>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
