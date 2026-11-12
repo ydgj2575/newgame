@@ -15,6 +15,32 @@ const restartBtn = document.getElementById('restart-btn');
 const homeBtn = document.getElementById('home-btn');
 const finalScore = document.getElementById('final-score');
 const finalStats = document.getElementById('final-stats');
+const newRecordEl = document.getElementById('new-record');
+const bestScoreChip = document.getElementById('best-score-chip');
+
+/* ---------------- 历史最高分（localStorage 持久化） ---------------- */
+
+const BEST_KEY = 'save-patrick:best';
+
+function loadBestScore() {
+  try {
+    const v = Number(window.localStorage.getItem(BEST_KEY));
+    return Number.isFinite(v) && v > 0 ? Math.floor(v) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveBestScore(v) {
+  try { window.localStorage.setItem(BEST_KEY, String(v)); } catch { /* 忽略隐私模式等异常 */ }
+}
+
+let bestScore = loadBestScore();
+
+function updateBestChip() {
+  if (bestScoreChip) bestScoreChip.textContent = `历史最高分：${bestScore}`;
+}
+updateBestChip();
 
 /* ---------------- 画布尺寸 ---------------- */
 
@@ -223,11 +249,18 @@ function handleEvents(events) {
 
 function showGameOver(e) {
   finalScore.textContent = String(e.score);
+  const isNewRecord = e.score > bestScore;
+  if (isNewRecord) {
+    bestScore = e.score;
+    saveBestScore(bestScore);
+  }
+  updateBestChip();
+  if (newRecordEl) newRecordEl.classList.toggle('hidden', !isNewRecord);
   const s = e.stats;
   finalStats.innerHTML = `
     <div><b>${s.patrick}</b><span>救回派大星</span></div>
     <div><b>${s.trash}</b><span>收回垃圾袋</span></div>
-    <div><b>${s.missedPatrick}</b><span>漏接派大星</span></div>`;
+    <div><b>${bestScore}</b><span>历史最高分</span></div>`;
   overScreen.classList.remove('hidden');
 }
 

@@ -247,3 +247,21 @@ h2 {
   color: rgba(20, 70, 100, 0.65);
   letter-spacing: 0.04em;
 }
+
+.best-score {
+  margin: 12px 0 0;
+  font-size: clamp(12px, 1.9vmin, 15px);
+  font-weight: 700;
+  color: #b06a92;
+  letter-spacing: 0.06em;
+}
+
+.new-record {
+  margin: 0 0 10px;
+  font-size: clamp(14px, 2.2vmin, 18px);
+  font-weight: 800;
+  color: #ef5b44;
+  animation: pop 0.32s cubic-bezier(0.2, 1.4, 0.5, 1);
+}
+
+.new-record.hidden { display: none; }
