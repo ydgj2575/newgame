@@ -469,9 +469,9 @@ export function drawHUD(ctx, game) {
   ctx.font = 'bold 30px "Microsoft YaHei", "PingFang SC", sans-serif';
   ctx.fillText(String(game.score), 34, 57);
 
-  // 生命（5 颗心）
+  // 生命（5 颗心）—— 左侧留出右上角暂停按钮的位置
   const hearts = game.cfg.maxLives;
-  const hx = VIEW.width - 30;
+  const hx = VIEW.width - 84;
   for (let i = 0; i < hearts; i++) {
     const alive = i < game.lives;
     drawHeart(ctx, hx - i * 34, 44, 13, alive);
@@ -498,6 +498,88 @@ export function drawHUD(ctx, game) {
   ctx.fillStyle = full ? '#b06a92' : '#7d95a5';
   ctx.font = '13px "Microsoft YaHei", "PingFang SC", sans-serif';
   ctx.fillText(full ? '送回救助站才能再接' : '接满 1 件后需先送回', 32, 118);
+
+  // 右上角暂停按钮
+  if (game.phase === 'playing') drawPauseButton(ctx, game.paused);
+  ctx.restore();
+}
+
+
+/** 暂停按钮（右上角，44×44） */
+export const PAUSE_BTN = { x: VIEW.width - 58, y: 14, w: 44, h: 44 };
+
+export function drawPauseButton(ctx, paused) {
+  const { x, y, w, h } = PAUSE_BTN;
+  ctx.save();
+  // 底板
+  roundRect(ctx, x, y, w, h, 12);
+  ctx.fillStyle = paused ? 'rgba(255, 224, 138, 0.95)' : 'rgba(255, 255, 255, 0.85)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(44, 109, 143, 0.45)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, x, y, w, h, 12);
+  ctx.stroke();
+
+  ctx.fillStyle = paused ? '#8a5a00' : '#2c6d8f';
+  if (paused) {
+    // 播放三角
+    ctx.beginPath();
+    ctx.moveTo(x + 16, y + 12);
+    ctx.lineTo(x + 33, y + 22);
+    ctx.lineTo(x + 16, y + 32);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    // 暂停双竖条
+    roundRect(ctx, x + 14, y + 12, 6, 20, 3);
+    ctx.fill();
+    roundRect(ctx, x + 24, y + 12, 6, 20, 3);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+
+/** 暂停遮罩 + 继续按钮 */
+export const RESUME_BTN = { x: VIEW.width / 2 - 110, y: 388, w: 220, h: 58 };
+
+export function drawPausedOverlay(ctx) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(6, 26, 41, 0.55)';
+  ctx.fillRect(0, 0, VIEW.width, VIEW.height);
+
+  const cardW = 420;
+  const cardH = 210;
+  const cx = VIEW.width / 2;
+  const cy = 340;
+  roundRect(ctx, cx - cardW / 2, cy - cardH / 2, cardW, cardH, 22);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#2c6d8f';
+  ctx.font = 'bold 34px "Microsoft YaHei", "PingFang SC", sans-serif';
+  ctx.fillText('已暂停', cx, cy - 54);
+  ctx.fillStyle = '#7d95a5';
+  ctx.font = '16px "Microsoft YaHei", "PingFang SC", sans-serif';
+  ctx.fillText('游戏进程已冻结，点击下方按钮或右上角继续', cx, cy - 14);
+  ctx.fillText('（也可以按 Esc / P 继续）', cx, cy + 14);
+
+  const b = RESUME_BTN;
+  roundRect(ctx, b.x, b.y, b.w, b.h, 29);
+  ctx.fillStyle = '#ef5b44';
+  ctx.fill();
+  roundRect(ctx, b.x, b.y, b.w, b.h, 29);
+  ctx.strokeStyle = '#c23f2d';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px "Microsoft YaHei", "PingFang SC", sans-serif';
+  ctx.fillText('继续游戏', b.x + b.w / 2, b.y + b.h / 2 + 1);
   ctx.restore();
 }
 

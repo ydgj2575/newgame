@@ -265,17 +265,38 @@ function pointerToWorld(e) {
   };
 }
 
+function hitRect(p, r) {
+  return p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h;
+}
+
 canvas.addEventListener('pointerdown', (e) => {
+  const p = pointerToWorld(e);
+  if (game.phase === 'playing') {
+    // 右上角暂停按钮
+    if (hitRect(p, art.PAUSE_BTN)) {
+      game.togglePause();
+      fx.shake = 0;
+      sfx.ui();
+      return;
+    }
+    // 暂停中：只有「继续游戏」按钮可点
+    if (game.paused) {
+      if (hitRect(p, art.RESUME_BTN)) {
+        game.togglePause();
+        sfx.ui();
+      }
+      return;
+    }
+  }
   dragging = true;
   try { canvas.setPointerCapture(e.pointerId); } catch { /* ignore */ }
   if (game.phase === 'playing') {
-    const p = pointerToWorld(e);
     game.setTarget(p.x, p.y);
   }
 });
 
 canvas.addEventListener('pointermove', (e) => {
-  if (game.phase !== 'playing') return;
+  if (game.phase !== 'playing' || game.paused) return;
   if (!dragging && e.pointerType !== 'mouse') return;
   const p = pointerToWorld(e);
   game.setTarget(p.x, p.y);
@@ -288,7 +309,17 @@ canvas.addEventListener('pointerleave', endDrag);
 
 const KEY_STEP = 30;
 window.addEventListener('keydown', (e) => {
-  if (game.phase !== 'playing') return;
+  // Esc / P 暂停与继续
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+    if (game.phase === 'playing') {
+      game.togglePause();
+      fx.shake = 0;
+      sfx.ui();
+      e.preventDefault();
+    }
+    return;
+  }
+  if (game.phase !== 'playing' || game.paused) return;
   const p = game.parachute;
   let handled = true;
   switch (e.key) {
@@ -304,7 +335,7 @@ window.addEventListener('keydown', (e) => {
 /* ---------------- 主循环 ---------------- */
 
 function drawTargetMarker() {
-  if (game.phase !== 'playing') return;
+  if (game.phase !== 'playing' || game.paused) return;
   const p = game.parachute;
   if (Math.hypot(p.tx - p.x, p.ty - p.y) < 18) return;
   ctx.save();
@@ -342,9 +373,10 @@ function draw(dt) {
   drawEffects(dt);
 
   if (game.phase !== 'ready') art.drawHUD(ctx, game);
-  if (game.phase === 'playing' && time < hintUntil) {
+  if (game.phase === 'playing' && !game.paused && time < hintUntil) {
     art.drawHint(ctx, '点击 / 拖动屏幕，移动降落伞');
   }
+  if (game.phase === 'playing' && game.paused) art.drawPausedOverlay(ctx);
 
   if (fx.flash > 0.01) {
     ctx.save();
@@ -362,10 +394,14 @@ let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
   last = now;
-  time += dt;
-  if (game.phase === 'playing') game.update(dt);
+  if (!game.paused) {
+    time += dt;
+    if (game.phase === 'playing') game.update(dt);
+  } else {
+    fx.shake = 0;
+  }
   handleEvents(game.drainEvents());
-  draw(dt);
+  draw(game.paused ? 0 : dt);
   requestAnimationFrame(frame);
 }
 

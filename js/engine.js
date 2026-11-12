@@ -59,6 +59,7 @@ export class Game {
     this.score = 0;
     this.lives = this.cfg.maxLives;
     this.elapsed = 0;
+    this.paused = false;
     this.items = [];
     this.carried = [];
     this.spawnTimer = 0.6;
@@ -84,6 +85,20 @@ export class Game {
     this.phase = 'playing';
     this.spawnTimer = 0.35;
     return this;
+  }
+
+  /** 暂停 / 继续游戏进程（暂停时 update 不再推进）。返回当前暂停状态。 */
+  setPaused(value) {
+    if (this.phase !== 'playing') {
+      this.paused = false;
+      return this.paused;
+    }
+    this.paused = !!value;
+    return this.paused;
+  }
+
+  togglePause() {
+    return this.setPaused(!this.paused);
   }
 
   /** 玩家点击 / 拖动：设置降落伞目标点 */
@@ -146,6 +161,7 @@ export class Game {
 
   update(dt) {
     if (this.phase !== 'playing') return;
+    if (this.paused) return;
     dt = Math.min(dt, 0.05);
     this.elapsed += dt;
     this.zoneGlow = Math.max(0, this.zoneGlow - dt);
